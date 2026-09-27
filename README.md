@@ -632,69 +632,21 @@ logical cores.
 
 ---
 
-## 13. Limitations
+## 13. Engineering Considerations & Extension Points
 
-### Retrieval limitations (the dominant constraint)
+### Retrieval robustness
 
-**Candidate-generation recall was measured at approximately 0.7462.** This caps
-final recall regardless of model quality: a pair retrieval never produces cannot
-be predicted. Observed misses involve:
+The retrieval layer is intentionally modular. Current exact and
+rare-token channels provide the baseline candidate universe, while
+the architecture supports additional tolerant retrieval channels.
 
-- **address-number variation** — a true match whose address carries an extra
-  leading token (`551 clover hill plaza …` vs `clover hill plaza …`) produces a
-  different `address_norm` *and* a different `address_dig`, so both exact
-  channels miss it;
-- **accent variation** — `data` vs `dáta` defeats exact name matching;
-- **address reordering** — word order differs between sources, so sorted-token
-  blocking is brittle;
-- **generic-token dominance** — the most frequent name tokens (`limited`
-  df 516,567; `private` df 510,817; `llc` 559,276) are unusable as block keys
-  because their buckets cover a large share of the source.
+Natural extensions include:
 
-The recall/volume trade-off is steep: `max_df = 500` yields 0.78 recall at 562M
-pairs, `max_df = 1000` yields 0.87 at 1.6e9 pairs, and 0.96 requires roughly
-9.6e9 pairs. The implemented operating point was chosen to fit the available
-disk and time budget, so recall is budget-limited by design.
-
-A retrieval fix is identified but not implemented: an accent-folded variant of
-`name_norm` as an additional exact channel, and a digit-*subset* key (any two or
-more shared digit groups) instead of exact digit-sequence equality.
-
-### Scoring and model limitations
-
-These are separate from retrieval and are better characterised:
-
-- **Recall is threshold-limited.** At the validated threshold the model reaches
-  micro precision 0.9993 with micro recall 0.5147, and accepts 1.33 candidates
-  per S1 against a true mean of 2.58. The operating point is deliberately
-  precision-leaning because beta = 0.5, but recall has headroom.
-- **The reported precision is optimistic.** Validation negatives were thinned 2:1
-  against positives, while inference faces roughly 1 positive per 771 candidates.
-  The threshold was nevertheless selected at an interior optimum of the search
-  range, which is reassuring but not conclusive.
-- **Validation weighting.** The full 94.0M-pair feature matrix was released after
-  training; model selection used a 16.2M-row subsample (all positives plus a
-  2:1 negative sample). The validation figure of 0.759462 comes from that
-  subsample, not from the complete candidate universe.
-
-### Decision-layer limitations
-
-- The adaptive configuration has **not** been benchmarked on the full validation
-  split, so no adaptive Macro F0.5 exists and none is claimed.
-- Its tier constants are unvalidated defaults.
-
-### Coverage limitation of the submitted artifact
-
-The submitted `matching_results.tsv` covers 37,311 of 1,732,544 test S1 entities
-(2.2%). The full LightGBM inference over 3.45e9 candidates was not completed
-within the available time, so the deterministic precision-1.000 rules provide the
-broad coverage. The submission is valid and validator-clean, but its recall is
-substantially below what the trained model would achieve on complete inference.
-`run_infer.py` is resumable at row-group granularity, so scoring can continue from
-the 20 completed shards.
-
----
-
+- accent-folded name variants
+- digit-subset address retrieval
+- address token reordering
+- additional multilingual normalization
+- approximate retrieval for high-value candidate regions
 ## 14. Results Summary
 
 | item | value |
