@@ -1,0 +1,78 @@
+{
+  "best": "L2",
+  "threshold": 0.7136363636363636,
+  "overall": {
+    "macro_f05": 0.7594619946722806,
+    "micro_precision": 0.99925311806183,
+    "micro_recall": 0.5147115915320355,
+    "n_s1": 331024,
+    "n_zero_match_s1": 44445,
+    "zero_match_accuracy": 0.9994375070311621,
+    "mean_pred_per_s1": 1.3307131809173958,
+    "mean_true_per_s1": 2.58342597515588
+  },
+  "segments": {
+    "zero_match": {
+      "n_s1": 232137,
+      "macro_f05": 0.775005,
+      "micro_precision": 0.999228,
+      "micro_recall": 0.527423
+    },
+    "singleton": {
+      "n_s1": 16481,
+      "macro_f05": 0.799266,
+      "micro_precision": 0.999291,
+      "micro_recall": 0.547982
+    },
+    "multi": {
+      "n_s1": 82406,
+      "macro_f05": 0.707718,
+      "micro_precision": 0.999309,
+      "micro_recall": 0.480885
+    }
+  },
+  "ladder": {
+    "L0": {
+      "threshold": 0.2772727272727273,
+      "macro_f05": 0.142276,
+      "metrics": {
+        "macro_f05": 0.14227565789156266,
+        "micro_precision": 0.03469064105427742,
+        "micro_recall": 0.03632234768047747,
+        "n_s1": 331024,
+        "n_zero_match_s1": 44445,
+        "zero_match_accuracy": 0.7442456969287884,
+        "mean_pred_per_s1": 2.704939823094398,
+        "mean_true_per_s1": 2.58342597515588
+      }
+    },
+    "L1": {
+      "threshold": 0.5954545454545455,
+      "macro_f05": 0.75917,
+      "metrics": {
+        "macro_f05": 0.7591699894082964,
+        "micro_precision": 0.9999726991031656,
+        "micro_recall": 0.5139690543233206,
+        "n_s1": 331024,
+        "n_zero_match_s1": 44445,
+        "zero_match_accuracy": 1.0,
+        "mean_pred_per_s1": 1.327837256513123,
+        "mean_true_per_s1": 2.58342597515588
+      }
+    },
+    "L2": {
+      "threshold": 0.7136363636363636,
+      "macro_f05": 0.759462,
+      "metrics": {
+        "macro_f05": 0.7594619946722806,
+        "micro_precision": 0.99925311806183,
+        "micro_recall": 0.5147115915320355,
+        "n_s1": 331024,
+        "n_zero_match_s1": 44445,
+        "zero_match_accuracy": 0.9994375070311621,
+        "mean_pred_per_s1": 1.3307131809173958,
+        "mean_true_per_s1": 2.58342597515588
+      }
+    }
+  }
+}

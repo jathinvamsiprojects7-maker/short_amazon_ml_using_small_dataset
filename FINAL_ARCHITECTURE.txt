@@ -735,3 +735,84 @@ Give the team this exact order:
 The key team rule should be:
 
 Do not optimize the ML model before proving the candidate set.
+================================================================================
+AS-BUILT IMPLEMENTATION STATUS  (appended after the pipeline was executed)
+================================================================================
+
+The sections above are the original design record and are kept unchanged. This
+section states what was ACTUALLY implemented and measured, so the document does
+not describe planned components as completed ones. The authoritative
+methodology write-up is README.md.
+
+1. ACTUAL PIPELINE AS BUILT
+
+  raw TSV
+    -> validation / normalization (script-safe, versioned Parquet cache)
+    -> candidate generation
+         exact_name | exact_address | address_digits | rare_token
+         (channel provenance bitmask per candidate)
+    -> candidate union + per-S1 budget (per_s1=1000, exact_cap=200,
+       digit_cap=200, max_token_df=1000, token_bucket_cap=5000)
+    -> candidate labelling + S1-grouped split (all positives kept,
+       negatives capped at 40 per S1)
+    -> 41 pair features (float32)
+    -> model ladder: L0 deterministic, L1 logistic regression,
+       L2 LightGBM  [L2 selected]
+    -> decision layer: baseline global threshold 0.7136;
+       optional adaptive layer (src/adaptive_decision.py)
+    -> matching_results.tsv + candidate_pairs.tsv
+    -> official validator  [PASS, and PASS with --check-ids]
+
+2. COMPONENTS PLANNED ABOVE BUT NOT IMPLEMENTED
+
+  * Channel 5, sparse character n-grams: NOT implemented. The TF-IDF n-gram
+    design required a dense queries x documents score matrix (2000 x 5,034,616
+    float32 = 40 GB) and caused an out-of-memory failure. It was removed and
+    replaced by array-based inverted indexes plus rare-token retrieval.
+  * Phonetic retrieval, multilingual embeddings, FAISS, calibration:
+    NOT implemented.
+  * "ngram" as a retrieval channel: NOT implemented. The provenance feature
+    name prov_ngram remains in the 41-feature layout (src/features.py) and is
+    always 0; it is retained for layout stability with the original design.
+  * Generic-name bucket protection as a tuned parameter: NOT implemented.
+    The per-S1 budget and token_bucket_cap bound expansion instead.
+  * Iterative hard-negative mining loop: NOT run. src/hard_negative_mining.py
+    exists but was not executed; no hard-negative gain is claimed.
+
+3. COMPONENTS IMPLEMENTED BEYOND THE ORIGINAL DESIGN
+
+  * Script-safe normalization (src/utils.py). The original NFKC + [^w\s] rule
+    destroyed combining marks and shredded Devanagari names; see
+    reports/RESOURCE_FIX_AND_RETRIEVAL_REDESIGN.md.
+  * Array-based retrieval indexes (src/indexing.py) and fixed-width
+    memory-mapped column stores (src/fixed_store.py), replacing
+    dictionary-of-lists indexes and pandas column materialisation.
+  * Per-row-group resumable test inference (run_infer.py).
+  * Adaptive decision layer (src/adaptive_decision.py), with the validated
+    fixed-threshold behaviour retained as decision_mode="baseline".
+
+4. MEASURED RESULTS AS BUILT
+
+  L2 LightGBM, threshold 0.7136
+    validation Macro F0.5 (S1-grouped, 331,024 S1) : 0.759462
+    micro precision 0.9993, micro recall 0.5147
+    zero-match 0.775005 | singleton 0.799266 | multi 0.707718
+
+  candidate-generation recall (train, measured)     : approx 0.7462
+    This is the dominant limitation. Traced misses involve address-number
+    variation, accent variation and address reordering; see
+    reports/CONTROLLED_VALIDATION.md.
+
+  official validator                                  : PASS
+  official validator with --check-ids                  : PASS
+
+5. KNOWN GAP IN THE SUBMITTED ARTIFACT
+
+  The full LightGBM inference over 3.45e9 test candidates was not completed
+  within the available time, so the submitted matching_results.tsv carries
+  predictions for 37,311 of 1,732,544 test S1 entities (2.2%), combining 329
+  LightGBM matches from 20 completed row-group shards with 37,493
+  deterministic precision-1.000 matches over the full population. Source 1
+  entities outside both sets have empty fields because no inference was run for
+  them; nothing was invented. run_infer.py is resumable at row-group
+  granularity.

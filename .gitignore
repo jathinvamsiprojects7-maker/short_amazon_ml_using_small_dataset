@@ -6,19 +6,36 @@ venv/
 .env
 .env.*
 
-# Large generated data/cache
+# Large regenerable data / caches (not source)
 cache/
-models/
-output/
+eda/
+__pycache__/
+src/__pycache__/
+reports/data_intelligence/__pycache__/
 
-# Generated/temporary reports
+# Challenge dataset (provided separately, not committed)
+dataset/
+
+# Generated logs / temp
 *.log
 *.err
+*.tmp
 
-# OS/editor
+# OS / editor
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
 
-dataset/
+# NOTE: models/ and output/ are intentionally NOT ignored.
+# The trained model artifacts and the two scored submission files are part of
+# the deliverable and must be versioned:
+#   models/l2_lgbm.pkl, models/best_model.json
+#   output/matching_results.tsv, output/candidate_pairs.tsv
+# Large intermediate shards (output/_parts/) are ignored.
+output/_parts/
+output/_dbg*
+cache/store/
+
+# Large generated candidate artifact - preserved inside submission ZIP
+output/candidate_pairs.tsv

@@ -1,0 +1,75 @@
+CONTROLLED VALIDATION  model=L2  threshold=0.7136
+cases=23  macro_f05=0.2174
+micro P=0.0  R=0.0
+
+kind        truth  pred   tp      P      R   F0.5
+----------------------------------------------------
+hardneg         1     0    0  0.000  0.000  0.000
+hardneg         1     2    0  0.000  0.000  0.000
+hardneg         1     1    0  0.000  0.000  0.000
+hardneg         1     1    0  0.000  0.000  0.000
+multi           4     1    0  0.000  0.000  0.000
+multi           4     0    0  0.000  0.000  0.000
+multi           6     0    0  0.000  0.000  0.000
+multi           4     0    0  0.000  0.000  0.000
+multi           4     4    0  0.000  0.000  0.000
+multi           3     1    0  0.000  0.000  0.000
+nomatch         0     0    0  1.000  1.000  1.000
+nomatch         0     0    0  1.000  1.000  1.000
+nomatch         0     0    0  1.000  1.000  1.000
+nomatch         0     0    0  1.000  1.000  1.000
+nomatch         0     0    0  1.000  1.000  1.000
+nomatch         0     5    0  0.000  0.000  0.000
+single          1     0    0  0.000  0.000  0.000
+single          1     2    0  0.000  0.000  0.000
+single          1     1    0  0.000  0.000  0.000
+single          1     0    0  0.000  0.000  0.000
+single          1     0    0  0.000  0.000  0.000
+single          1     0    0  0.000  0.000  0.000
+variation       2     0    0  0.000  0.000  0.000
+
+FAILURES (18):
+  hardneg    S1-466520437  truth=1 pred=0 tp=0 cands=2000
+      missed rows (retrieval failures): [1837221]
+  hardneg    S1-843338854  truth=1 pred=2 tp=0 cands=2000
+      missed rows (retrieval failures): [3007251]
+      false-positive rows: [486268, 512188]
+  hardneg    S1-793599838  truth=1 pred=1 tp=0 cands=2000
+      missed rows (retrieval failures): [3041236]
+      false-positive rows: [1007845]
+  hardneg    S1-707073010  truth=1 pred=1 tp=0 cands=2000
+      missed rows (retrieval failures): [4826308]
+      false-positive rows: [445849]
+  multi      S1-79162538  truth=4 pred=1 tp=0 cands=2000
+      missed rows (retrieval failures): [1507605, 532641, 2241832]
+      false-positive rows: [836849]
+  multi      S1-172003693  truth=4 pred=0 tp=0 cands=2000
+      missed rows (retrieval failures): [3627170, 55073, 2318362]
+  multi      S1-227493618  truth=6 pred=0 tp=0 cands=2000
+      missed rows (retrieval failures): [1115072, 1144276, 2516358]
+  multi      S1-186569045  truth=4 pred=0 tp=0 cands=2000
+      missed rows (retrieval failures): [4002282, 1526488, 2843666]
+  multi      S1-70164720  truth=4 pred=4 tp=0 cands=2000
+      missed rows (retrieval failures): [642626, 940778, 3167252]
+      false-positive rows: [1215235, 830924, 2378996]
+  multi      S1-832521014  truth=3 pred=1 tp=0 cands=2000
+      missed rows (retrieval failures): [166634, 861440, 1643285]
+      false-positive rows: [2540076]
+  nomatch    S1-486364035  truth=0 pred=5 tp=0 cands=2000
+      false-positive rows: [303726, 442505, 1158404]
+  single     S1-46128417  truth=1 pred=0 tp=0 cands=2000
+      missed rows (retrieval failures): [1499339]
+  single     S1-520154810  truth=1 pred=2 tp=0 cands=2000
+      missed rows (retrieval failures): [4735450]
+      false-positive rows: [2602947, 2888503]
+  single     S1-448445003  truth=1 pred=1 tp=0 cands=2000
+      missed rows (retrieval failures): [4805429]
+      false-positive rows: [1097491]
+  single     S1-437635808  truth=1 pred=0 tp=0 cands=2000
+      missed rows (retrieval failures): [529940]
+  single     S1-219918909  truth=1 pred=0 tp=0 cands=2000
+      missed rows (retrieval failures): [2508688]
+  single     S1-118361933  truth=1 pred=0 tp=0 cands=2000
+      missed rows (retrieval failures): [4625829]
+  variation  S1-377624438  truth=2 pred=0 tp=0 cands=2000
+      missed rows (retrieval failures): [475511, 4217491]

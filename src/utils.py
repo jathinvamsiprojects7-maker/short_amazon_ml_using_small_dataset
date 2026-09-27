@@ -16,6 +16,11 @@ _config: dict[str, Any] | None = None
 
 
 def get_config() -> dict[str, Any]:
+    """Load and cache ``config/pipeline.yaml``.
+
+    Returns the parsed configuration mapping; memoised so repeated calls do not
+    re-read the file.
+    """
     global _config
     if _config is None:
         with open(_CONFIG_PATH, encoding="utf-8") as f:
@@ -103,25 +108,30 @@ class ResourceGuard:
         return max(1, int(self._n_cpu * self.cpu_fraction))
 
     def system_ram_used(self) -> float:
+        """Total machine RAM in use, in bytes (all processes, not just this one)."""
         if self._psutil is None:
             return 0.0
         return float(self._psutil.virtual_memory().used)
 
     def system_ram_percent(self) -> float:
+        """Total machine RAM in use as a percentage across all processes."""
         if self._psutil is None:
             return 0.0
         return float(self._psutil.virtual_memory().percent)
 
     def system_cpu_percent(self) -> float:
+        """Total machine CPU utilisation as a percentage across all cores."""
         if self._psutil is None:
             return 0.0
         return float(self._psutil.cpu_percent(interval=None))
 
     # -- checks ----------------------------------------------------------
     def headroom_bytes(self) -> float:
+        """Bytes of RAM still available before the ceiling is reached."""
         return self.budget_bytes - self.system_ram_used()
 
     def would_exceed(self, nbytes: float) -> bool:
+        """True if allocating ``nbytes`` would push total RAM past the ceiling."""
         return self.system_ram_used() + float(nbytes) > self.budget_bytes
 
     def reserve(self, nbytes: float, what: str = "allocation") -> None:
@@ -168,7 +178,10 @@ class ResourceGuard:
         return size
 
     def pause_for_memory(self, timeout: float = 600.0) -> None:
-        """Block until system RAM drops back under the high-pressure mark."""
+        """Block until system RAM drops back under the high-pressure mark.
+
+        Gives up after ``timeout`` seconds so a caller can never hang forever.
+        """
         import time
         start = time.perf_counter()
         while self.pressure() >= 0.80:
@@ -177,6 +190,11 @@ class ResourceGuard:
             time.sleep(2.0)
 
     def gc(self, rounds: int = 3) -> None:
+        """Force ``rounds`` garbage-collection passes.
+
+        Called between pipeline stages so large intermediate arrays are released
+        before the next allocation.
+        """
         import gc as _gc
         for _ in range(rounds):
             _gc.collect()
@@ -198,6 +216,7 @@ def guard() -> ResourceGuard:
 
 
 def paths() -> dict[str, Path]:
+    """Return the configured project directories as ``Path`` objects."""
     cfg = get_config()["paths"]
     return {k: Path(v) for k, v in cfg.items()}
 
@@ -281,6 +300,7 @@ def _has_protected_script(value: str) -> bool:
 
 
 def norm_tokens(value: str) -> list[str]:
+    """Normalized whitespace tokens of ``value`` (list form of :func:`norm_text`)."""
     return norm_text(value).split()
 
 
@@ -290,10 +310,12 @@ def address_digits(value: str) -> str:
 
 
 def address_digit_set(value: str) -> frozenset[str]:
+    """Distinct digit groups found in ``value`` (helper for pairwise overlap)."""
     return frozenset(re.findall(r"\d+", value))
 
 
 def token_set(value: str) -> frozenset[str]:
+    """Normalized tokens of ``value`` of length >= 3, as a set."""
     return frozenset(t for t in norm_tokens(value) if len(t) >= 3)
 
 
@@ -321,6 +343,13 @@ class Timer:
 # ---------------------------------------------------------------------------
 
 def f05_score(precision: float, recall: float) -> float:
+    """
+    F-beta score with beta = 0.5.
+
+    With beta = 0.5 the weights are precision 0.2 and recall 0.8 after
+    normalising, i.e. precision is weighted twice as heavily as recall. Returns
+    0.0 when both inputs are 0.
+    """
     denom = 0.25 * precision + recall
     if denom == 0:
         return 0.0

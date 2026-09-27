@@ -1,0 +1,8 @@
+{
+  "n_test_s1": 1732544,
+  "n_s1_with_match": 37311,
+  "n_s1_empty_match": 1695233,
+  "n_total_match_ids": 38323,
+  "n_s1_no_candidates": 1690570,
+  "validator_pass": true
+}

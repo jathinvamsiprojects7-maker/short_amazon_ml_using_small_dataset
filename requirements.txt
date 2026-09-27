@@ -1,0 +1,17 @@
+# Pinned to the exact versions this project was developed and validated with
+# (Python 3.12.10). Reproduces the reported results.
+#
+#   python -m pip install -r requirements.txt
+
+numpy==2.4.4
+pandas==3.0.3
+pyarrow==25.0.0
+scipy==1.18.1
+scikit-learn==1.9.0
+lightgbm==4.7.0
+rapidfuzz==3.14.6
+psutil==5.9.8
+PyYAML==6.0.1
+
+# Standard library only (official validator, zip packaging):
+#   argparse, hashlib, json, pathlib, subprocess, zipfile

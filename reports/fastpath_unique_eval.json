@@ -1,0 +1,34 @@
+{
+  "uniq_name": {
+    "pred": 44437,
+    "tp": 33791,
+    "fp": 10646,
+    "truth": 346089,
+    "precision": 0.76042,
+    "recall": 0.09764
+  },
+  "uniq_name_addr": {
+    "pred": 1174,
+    "tp": 1174,
+    "fp": 0,
+    "truth": 346089,
+    "precision": 1.0,
+    "recall": 0.00339
+  },
+  "uniq_addr": {
+    "pred": 20871,
+    "tp": 19292,
+    "fp": 1579,
+    "truth": 346089,
+    "precision": 0.92434,
+    "recall": 0.05574
+  },
+  "uniq_name_dig": {
+    "pred": 1111,
+    "tp": 1111,
+    "fp": 0,
+    "truth": 346089,
+    "precision": 1.0,
+    "recall": 0.00321
+  }
+}

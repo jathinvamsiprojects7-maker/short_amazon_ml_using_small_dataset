@@ -1,0 +1,34 @@
+{
+  "name_exact": {
+    "predicted_pairs": 494887,
+    "true_pairs": 346089,
+    "tp": 64093,
+    "fp": 430794,
+    "precision": 0.12951,
+    "recall": 0.18519
+  },
+  "name_addr_exact": {
+    "predicted_pairs": 0,
+    "true_pairs": 346089,
+    "tp": 0,
+    "fp": 0,
+    "precision": 0.0,
+    "recall": 0.0
+  },
+  "addr_exact": {
+    "predicted_pairs": 34308,
+    "true_pairs": 346089,
+    "tp": 28415,
+    "fp": 5893,
+    "precision": 0.82823,
+    "recall": 0.0821
+  },
+  "digit_exact": {
+    "predicted_pairs": 2608483,
+    "true_pairs": 346089,
+    "tp": 74599,
+    "fp": 2533884,
+    "precision": 0.0286,
+    "recall": 0.21555
+  }
+}

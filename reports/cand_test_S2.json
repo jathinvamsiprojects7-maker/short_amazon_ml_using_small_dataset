@@ -1,0 +1,17 @@
+{
+  "source": "S2",
+  "split": "test",
+  "n_s1_processed": 1732544,
+  "candidate_pairs": 1724655328,
+  "pairs_per_s1": 995.45,
+  "elapsed_sec": 931.0,
+  "out_file_mb": 8256.3,
+  "workers": 7,
+  "budget": {
+    "per_s1": 1000,
+    "digit_cap": 200,
+    "exact_cap": 200,
+    "max_token_df": 1000,
+    "token_bucket_cap": 5000
+  }
+}

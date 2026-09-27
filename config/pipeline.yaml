@@ -55,6 +55,11 @@ training:
   neg_ratio_random: 3
   neg_ratio_hard: 3
   max_hard_negatives_per_s1: 10
+  # negatives kept per positive when materialising the training matrix
+  # (94M x 41 float32 = 15.4 GB cannot be held in RAM, so the model trains on
+  #  all positives plus a thinned negative sample)
+  train_neg_per_pos: 2
+  max_neg_per_s1: 40
 
 features:
   use_name: true
