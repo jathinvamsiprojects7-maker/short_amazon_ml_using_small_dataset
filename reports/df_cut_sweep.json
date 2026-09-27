@@ -1,0 +1,145 @@
+{
+  "n_sample_s1": 1200,
+  "total_gt_pairs": 4454,
+  "most_generic": [
+    {
+      "token": "road",
+      "max_df": 670571
+    },
+    {
+      "token": "limited",
+      "max_df": 659541
+    },
+    {
+      "token": "private",
+      "max_df": 619887
+    },
+    {
+      "token": "llc",
+      "max_df": 559294
+    },
+    {
+      "token": "new",
+      "max_df": 476937
+    },
+    {
+      "token": "ltd",
+      "max_df": 434793
+    },
+    {
+      "token": "inc",
+      "max_df": 411152
+    },
+    {
+      "token": "and",
+      "max_df": 383478
+    },
+    {
+      "token": "street",
+      "max_df": 362737
+    },
+    {
+      "token": "city",
+      "max_df": 360639
+    },
+    {
+      "token": "north",
+      "max_df": 346369
+    },
+    {
+      "token": "maharashtra",
+      "max_df": 319190
+    },
+    {
+      "token": "floor",
+      "max_df": 313694
+    },
+    {
+      "token": "texas",
+      "max_df": 294128
+    },
+    {
+      "token": "nagar",
+      "max_df": 284425
+    }
+  ],
+  "sweep": [
+    {
+      "max_df": 1,
+      "recall": 0.0085,
+      "pct_s1_with_rare_token": 0.0242,
+      "expected_rows_per_s1_mean": 0.0,
+      "expected_rows_per_s1_p50": 0
+    },
+    {
+      "max_df": 2,
+      "recall": 0.0375,
+      "pct_s1_with_rare_token": 0.0692,
+      "expected_rows_per_s1_mean": 0.1,
+      "expected_rows_per_s1_p50": 0
+    },
+    {
+      "max_df": 5,
+      "recall": 0.1251,
+      "pct_s1_with_rare_token": 0.1567,
+      "expected_rows_per_s1_mean": 0.6,
+      "expected_rows_per_s1_p50": 0
+    },
+    {
+      "max_df": 10,
+      "recall": 0.1908,
+      "pct_s1_with_rare_token": 0.2242,
+      "expected_rows_per_s1_mean": 1.4,
+      "expected_rows_per_s1_p50": 0
+    },
+    {
+      "max_df": 25,
+      "recall": 0.2842,
+      "pct_s1_with_rare_token": 0.3383,
+      "expected_rows_per_s1_mean": 4.2,
+      "expected_rows_per_s1_p50": 0
+    },
+    {
+      "max_df": 50,
+      "recall": 0.3826,
+      "pct_s1_with_rare_token": 0.4475,
+      "expected_rows_per_s1_mean": 10.9,
+      "expected_rows_per_s1_p50": 0
+    },
+    {
+      "max_df": 100,
+      "recall": 0.5418,
+      "pct_s1_with_rare_token": 0.6208,
+      "expected_rows_per_s1_mean": 34.7,
+      "expected_rows_per_s1_p50": 12
+    },
+    {
+      "max_df": 250,
+      "recall": 0.6868,
+      "pct_s1_with_rare_token": 0.7758,
+      "expected_rows_per_s1_mean": 111.1,
+      "expected_rows_per_s1_p50": 76
+    },
+    {
+      "max_df": 500,
+      "recall": 0.7815,
+      "pct_s1_with_rare_token": 0.8733,
+      "expected_rows_per_s1_mean": 254.8,
+      "expected_rows_per_s1_p50": 188
+    },
+    {
+      "max_df": 1000,
+      "recall": 0.868,
+      "pct_s1_with_rare_token": 0.94,
+      "expected_rows_per_s1_mean": 715.3,
+      "expected_rows_per_s1_p50": 625
+    },
+    {
+      "max_df": 5000,
+      "recall": 0.956,
+      "pct_s1_with_rare_token": 0.995,
+      "expected_rows_per_s1_mean": 4369.8,
+      "expected_rows_per_s1_p50": 3817
+    }
+  ]
+}

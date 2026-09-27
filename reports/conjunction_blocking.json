@@ -1,0 +1,30 @@
+{
+  "n_sample_s1": 800,
+  "total_gt_pairs": 2956,
+  "rows": {
+    "1": {
+      "recall": 0.9983,
+      "rows_per_s1_mean": 1469939.5,
+      "p50": 1422663,
+      "p95": 2927212,
+      "p99": 3414423,
+      "est_full_train_pairs": 3243893252505
+    },
+    "2": {
+      "recall": 0.9087,
+      "rows_per_s1_mean": 31489.5,
+      "p50": 6876,
+      "p95": 156710,
+      "p99": 236725,
+      "est_full_train_pairs": 69491676086
+    },
+    "3": {
+      "recall": 0.7199,
+      "rows_per_s1_mean": 1221.0,
+      "p50": 34,
+      "p95": 7393,
+      "p99": 16745,
+      "est_full_train_pairs": 2694498097
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "n_sample_s1": 3000,
+  "total_gt_pairs": 10906,
+  "timings_sec": {
+    "S2_exact_index": 11.3,
+    "S2_name_token_index": 40.6,
+    "S2_addr_token_index": 54.4,
+    "S2_query": 291.0,
+    "S3_exact_index": 12.1,
+    "S3_name_token_index": 43.2,
+    "S3_addr_token_index": 57.3,
+    "S3_query": 309.1
+  },
+  "n_docs": {
+    "S2": 5034616,
+    "S3": 5285603
+  },
+  "channels": {
+    "exact_name": {
+      "recall": 0.2241,
+      "hits": 2444,
+      "candidate_rows_emitted": 28583
+    },
+    "exact_address": {
+      "recall": 0.0833,
+      "hits": 909,
+      "candidate_rows_emitted": 1039
+    },
+    "address_digits": {
+      "recall": 0.593,
+      "hits": 6467,
+      "candidate_rows_emitted": 10050135
+    },
+    "name_token": {
+      "recall": 0.8565,
+      "hits": 9341,
+      "candidate_rows_emitted": 2209541219
+    },
+    "addr_token": {
+      "recall": 0.952,
+      "hits": 10382,
+      "candidate_rows_emitted": 2310659328
+    }
+  },
+  "union_all_channels": {
+    "recall": 0.9996,
+    "hits": 10902
+  }
+}

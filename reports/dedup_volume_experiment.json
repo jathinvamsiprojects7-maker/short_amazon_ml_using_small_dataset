@@ -1,0 +1,54 @@
+{
+  "n_sample_s1": 1500,
+  "total_gt_pairs": 5537,
+  "rows": {
+    "100": {
+      "token_recall": 0.9485,
+      "union_recall": 0.9632,
+      "token_rows_per_s1_mean": 9061.0,
+      "p50": 2255,
+      "p95": 26970,
+      "p99": 51569,
+      "est_total_pairs_full_train": 19996050688
+    },
+    "250": {
+      "token_recall": 0.9485,
+      "union_recall": 0.9632,
+      "token_rows_per_s1_mean": 9061.0,
+      "p50": 2255,
+      "p95": 26970,
+      "p99": 51569,
+      "est_total_pairs_full_train": 19996050688
+    },
+    "500": {
+      "token_recall": 0.9485,
+      "union_recall": 0.9632,
+      "token_rows_per_s1_mean": 9061.0,
+      "p50": 2255,
+      "p95": 26970,
+      "p99": 51569,
+      "est_total_pairs_full_train": 19996050688
+    },
+    "1000": {
+      "token_recall": 0.9485,
+      "union_recall": 0.9632,
+      "token_rows_per_s1_mean": 9061.0,
+      "p50": 2255,
+      "p95": 26970,
+      "p99": 51569,
+      "est_total_pairs_full_train": 19996050688
+    },
+    "2500": {
+      "token_recall": 0.9485,
+      "union_recall": 0.9632,
+      "token_rows_per_s1_mean": 9061.0,
+      "p50": 2255,
+      "p95": 26970,
+      "p99": 51569,
+      "est_total_pairs_full_train": 19996050688
+    }
+  },
+  "exact": {
+    "recall": 0.6807
+  }
+}

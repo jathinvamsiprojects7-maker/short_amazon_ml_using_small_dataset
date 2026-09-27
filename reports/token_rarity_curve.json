@@ -1,0 +1,71 @@
+{
+  "n_pairs": 14823,
+  "share_ge1": 0.9993,
+  "share_ge2": 0.9946,
+  "recall_curve": [
+    {
+      "max_df": 10,
+      "recall": 0.754,
+      "recall_ge2": 0.7536
+    },
+    {
+      "max_df": 25,
+      "recall": 0.7818,
+      "recall_ge2": 0.7812
+    },
+    {
+      "max_df": 50,
+      "recall": 0.8106,
+      "recall_ge2": 0.81
+    },
+    {
+      "max_df": 100,
+      "recall": 0.8546,
+      "recall_ge2": 0.8537
+    },
+    {
+      "max_df": 250,
+      "recall": 0.9018,
+      "recall_ge2": 0.9008
+    },
+    {
+      "max_df": 500,
+      "recall": 0.9274,
+      "recall_ge2": 0.9263
+    },
+    {
+      "max_df": 1000,
+      "recall": 0.954,
+      "recall_ge2": 0.9524
+    },
+    {
+      "max_df": 2500,
+      "recall": 0.9731,
+      "recall_ge2": 0.9709
+    },
+    {
+      "max_df": 5000,
+      "recall": 0.981,
+      "recall_ge2": 0.9783
+    },
+    {
+      "max_df": 10000,
+      "recall": 0.9881,
+      "recall_ge2": 0.985
+    },
+    {
+      "max_df": 25000,
+      "recall": 0.9969,
+      "recall_ge2": 0.9928
+    },
+    {
+      "max_df": 50000,
+      "recall": 0.9979,
+      "recall_ge2": 0.9937
+    }
+  ],
+  "n_docs": {
+    "train_source2_norm.parquet": 5034616,
+    "train_source3_norm.parquet": 5285603
+  }
+}

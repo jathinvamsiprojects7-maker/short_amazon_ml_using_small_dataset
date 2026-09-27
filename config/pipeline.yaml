@@ -1,0 +1,85 @@
+paths:
+  dataset_root: "D:/amazon_ml/dataset/student_resource/dataset"
+  train_dir: "D:/amazon_ml/dataset/student_resource/dataset/train"
+  test_dir: "D:/amazon_ml/dataset/student_resource/dataset/test"
+  cache_dir: "D:/amazon_ml/cache"
+  output_dir: "D:/amazon_ml/output"
+  models_dir: "D:/amazon_ml/models"
+  experiments_dir: "D:/amazon_ml/experiments"
+  reports_dir: "D:/amazon_ml/reports"
+  validator: "D:/amazon_ml/dataset/student_resource/utils/validate_submission.py"
+
+# Hard resource policy. These are fractions of TOTAL system usage (the whole
+# machine: Windows + shell + Python + background services), not of this
+# process. 0.80 is the hard ceiling and must not be exceeded.
+resources:
+  ram_ceiling: 0.80        # total system RAM must stay <= 80%
+  cpu_fraction: 0.78       # total system CPU must stay <= ~78%
+  disk_min_free_fraction: 0.20   # keep >= 20% of D: free
+  max_workers: 9           # <= 78% of 12 logical cores
+
+data:
+  chunk_size: 400000
+  id_dtype: "string"
+  encoding: "utf-8-sig"
+
+normalization:
+  nfkc: true
+  casefold: true
+  ampersand_to_and: true
+  punctuation_to_space: true
+  whitespace_collapse: true
+  accent_fold: false
+
+retrieval:
+  exact_name: true
+  exact_address: true
+  address_digits: true
+  rare_token: true
+  # Operating point chosen from the measured recall/volume curve in
+  # reports/union_budget_recall.json. per_s1 bounds the candidates kept per
+  # S1 per source; exact_cap/digit_cap bound the two high-volume exact
+  # channels (digits alone reach p95 ~24k/S1 and would otherwise consume the
+  # whole budget before any discriminative token evidence is used).
+  per_s1: 1000
+  exact_cap: 200
+  digit_cap: 200
+  max_token_df: 1000
+  min_token_len: 3
+  retrieval_chunk_size: 50000
+  batch_size: 1000000
+
+training:
+  val_fraction: 0.15
+  random_seed: 20260925
+  neg_ratio_random: 3
+  neg_ratio_hard: 3
+  max_hard_negatives_per_s1: 10
+
+features:
+  use_name: true
+  use_address: true
+  use_digits: true
+  use_tokens: true
+  use_rarity: true
+  use_missingness: true
+  use_contradiction: true
+  use_provenance: true
+
+model:
+  lgbm_n_estimators: 500
+  lgbm_learning_rate: 0.05
+  lgbm_num_leaves: 63
+  lgbm_min_child_samples: 20
+  lgbm_subsample: 0.8
+  lgbm_colsample_bytree: 0.8
+  lgbm_reg_alpha: 0.1
+  lgbm_reg_lambda: 0.1
+  lr_C: 1.0
+  lr_max_iter: 1000
+  random_seed: 20260925
+
+threshold:
+  search_min: 0.05
+  search_max: 0.95
+  search_steps: 100

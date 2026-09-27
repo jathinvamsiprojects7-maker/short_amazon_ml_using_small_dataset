@@ -1,0 +1,17 @@
+{
+  "source": "S2",
+  "split": "train",
+  "n_s1_processed": 2206821,
+  "candidate_pairs": 2204614412,
+  "pairs_per_s1": 999.0,
+  "elapsed_sec": 1229.1,
+  "out_file_mb": 10798.4,
+  "workers": 7,
+  "budget": {
+    "per_s1": 1000,
+    "digit_cap": 200,
+    "exact_cap": 200,
+    "max_token_df": 1000,
+    "token_bucket_cap": 5000
+  }
+}

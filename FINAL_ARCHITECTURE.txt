@@ -1,0 +1,737 @@
+Amazon ML Challenge 2026 — Final Architecture & Pipeline
+1. Core Architecture
+                         ┌──────────────────────┐
+                         │      RAW DATA        │
+                         │ S1 / S2 / S3 / GT    │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ 1. VALIDATE + PROFILE│
+                         │ schema / IDs / rows  │
+                         │ duplicates / missing │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ 2. NORMALIZATION     │
+                         │ raw + normalized     │
+                         │ tokens / digits      │
+                         │ compact int32 IDs    │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ 3. CACHE + INDEX     │
+                         │ Parquet              │
+                         │ exact indexes        │
+                         │ token indexes        │
+                         │ sparse n-gram index  │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+             ┌─────────────────────────────────────────┐
+             │ 4. HIGH-RECALL CANDIDATE GENERATION    │
+             │                                         │
+             │ Exact name                              │
+             │ Exact address                           │
+             │ Address digit/key                       │
+             │ Rare informative tokens                 │
+             │ Sparse character n-grams                │
+             │ Optional phonetic/token channels        │
+             └────────────────────┬────────────────────┘
+                                  │
+                                  ▼
+                         ┌──────────────────────┐
+                         │ 5. UNION + DEDUP     │
+                         │ provenance            │
+                         │ generic-name safety  │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                  ┌─────────────────────────────────┐
+                  │ VALIDATION / EXPERIMENT GATE    │
+                  │                                 │
+                  │ Per-channel recall             │
+                  │ Union recall                   │
+                  │ Candidates/S1                   │
+                  │ P50 / P95 / P99                │
+                  │ Runtime / Memory               │
+                  └────────────────┬────────────────┘
+                                   │
+                                   ▼
+                         ┌──────────────────────┐
+                         │ 6. PAIR FEATURES    │
+                         │ name / address      │
+                         │ digits / tokens     │
+                         │ rarity / missing    │
+                         │ contradictions      │
+                         │ provenance           │
+                         └──────────┬───────────┘
+                                    │
+                 ┌──────────────────┴──────────────────┐
+                 │                                     │
+                 ▼                                     ▼
+       ┌─────────────────────┐              ┌─────────────────────┐
+       │ GT POSITIVE PAIRS   │              │ NEGATIVE PAIRS      │
+       │                     │              │                     │
+       │ Known matches       │              │ Random              │
+       │                     │              │ Same name/diff addr │
+       └──────────┬──────────┘              │ Same addr/diff name │
+                  │                         │ Near-miss/high sim  │
+                  │                         └──────────┬──────────┘
+                  │                                    │
+                  └────────────────┬───────────────────┘
+                                   ▼
+                         ┌──────────────────────┐
+                         │ 7. MODEL LADDER      │
+                         │                      │
+                         │ L0 Deterministic     │
+                         │ L1 Logistic Reg.     │
+                         │ L2 LightGBM / GBDT   │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ 8. S1-GROUPED        │
+                         │ VALIDATION           │
+                         │                      │
+                         │ zero / singleton /   │
+                         │ multi                │
+                         │ S1→S2 / S1→S3        │
+                         │ error analysis       │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ 9. HARD-NEGATIVE      │
+                         │ MINING                │
+                         │                      │
+                         │ high-score false     │
+                         │ positives → negatives│
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ 10. THRESHOLD SEARCH │
+                         │                      │
+                         │ S1 Macro F0.5        │
+                         │ global first         │
+                         │ S2/S3 optional       │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ 11. FINAL DECISION   │
+                         │                      │
+                         │ score >= threshold   │
+                         │       → MATCH        │
+                         │ score < threshold    │
+                         │       → REJECT       │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ 12. 0 / 1 / MANY     │
+                         │                      │
+                         │ Accept ALL candidates│
+                         │ above threshold      │
+                         │ NO final top-K       │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ 13. OUTPUT VALIDATOR │
+                         │                      │
+                         │ candidate_pairs.tsv  │
+                         │ matching_results.tsv │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                              SUBMISSION ZIP
+
+This follows the uploaded final architecture: retrieval is treated as a recall ceiling, while the ML stage handles precision and the decision layer optimizes S1-level Macro F₀.₅.
+
+2. Final Pipeline
+Stage 0 — Validation foundation
+
+Load:
+
+train_source1.tsv
+train_source2.tsv
+train_source3.tsv
+train_ground_truth.tsv
+
+Then later:
+
+test_source1.tsv
+test_source2.tsv
+test_source3.tsv
+
+Validate:
+
+schema
+IDs
+duplicates
+malformed rows
+row counts
+missingness
+encoding
+
+Also implement the submission validator early.
+
+Stage 1 — Normalization
+
+Never destroy the original values.
+
+Maintain:
+
+raw_name
+raw_address
+raw_country
+
+and create:
+
+name_norm
+address_norm
+name_tokens
+address_tokens
+address_digits
+address_key
+
+Initial normalization:
+
+Unicode normalization
+case normalization
+whitespace normalization
+punctuation cleanup
+safe character handling
+
+Do not automatically force aggressive typo correction, transliteration, abbreviation expansion, etc. Those remain experiments.
+
+3. Caching & Data Representation
+
+Use:
+
+int32 internal IDs
+        ↓
+Parquet cached representations
+        ↓
+Reusable indexes
+
+Cache:
+
+normalized names
+normalized addresses
+tokens
+digit keys
+compact IDs
+retrieval indexes
+candidate pairs
+negative pairs
+expensive features
+
+Use configuration/input versioning so stale caches aren't accidentally reused.
+
+4. Candidate Generation
+
+This is one of the most important components.
+
+For every S1:
+
+C_name
+C_address
+C_digit
+C_rare_token
+C_ngram
+
+C = UNION(all channels)
+Channel 1 — Exact normalized name
+name_norm → S2/S3 IDs
+
+High precision, useful for formatting variation.
+
+Channel 2 — Exact normalized address
+address_norm → S2/S3 IDs
+
+Useful when the business name is ambiguous.
+
+Channel 3 — Address digit/key
+
+Use:
+
+street numbers
+postal codes
+digit sequences
+other stable address keys
+Channel 4 — Rare informative tokens
+
+Don't treat generic words such as:
+
+store
+center
+the
+
+the same as informative tokens.
+
+Use token frequency to determine informativeness.
+
+Channel 5 — Sparse character n-grams
+
+Use sparse character representations to retrieve fuzzy candidates such as:
+
+apollo medical center
+apollo medical centre
+apolo medical center
+
+Never construct a dense S1 × S2/S3 similarity matrix.
+
+The architecture explicitly requires bounded sparse retrieval.
+
+Optional
+
+Only experimentally:
+
+phonetic retrieval
+additional token retrieval
+multilingual/semantic retrieval
+5. Candidate Union
+
+Every retrieval result keeps provenance:
+
+S1_ID
+candidate_ID
+source
+exact_name
+exact_address
+digit_key
+rare_token
+ngram
+...
+
+Example:
+
+S1_100
+S2_500
+
+exact_name = 1
+digit_key   = 1
+ngram       = 1
+
+The number and combination of retrieval channels become ML features.
+
+6. Generic-Name Protection
+
+For names appearing extremely frequently:
+
+ABC
+medical center
+physical therapy
+...
+
+don't blindly expand the entire bucket.
+
+But also don't delete the bucket just because it is large.
+
+Measure:
+
+bucket size
+true-match recall
+candidate volume
+secondary evidence
+
+Then experimentally determine safe handling.
+
+The uploaded architecture specifically keeps this as an experimental retrieval decision rather than hard-coding a threshold.
+
+7. Candidate Recall Gate
+
+This is a validation/experiment gate, not something that requires test ground truth.
+
+Measure on training/validation:
+
+Exact-name recall
+Exact-address recall
+Digit/key recall
+Rare-token recall
+N-gram recall
+Union recall
+
+And:
+
+Mean candidates/S1
+P50
+P95
+P99
+Reduction ratio
+Runtime
+Peak memory
+
+Only after retrieval quality is measured should the team optimize the ML model.
+
+8. Pair Feature Engineering
+
+For every:
+
+S1 × candidate
+
+generate features.
+
+Name
+exact normalized equality
+RapidFuzz similarity
+edit similarity
+token overlap
+Jaccard
+length difference
+token count difference
+rare-token overlap
+Address
+character similarity
+token similarity
+Jaccard
+edit similarity
+digit overlap
+digit sequence similarity
+postal/key agreement
+length difference
+Cross-field
+name_score
+address_score
+name × address
+Negative evidence
+same name + different address
+same address + different name
+conflicting digit keys
+country disagreement
+Missingness
+name missing
+address missing
+digit key missing
+country missing
+Retrieval provenance
+exact_name retrieved?
+exact_address retrieved?
+digit retrieved?
+rare_token retrieved?
+ngram retrieved?
+number of channels
+
+These feature groups are explicitly part of the final architecture.
+
+9. Training-Pair Construction
+Positives
+
+Ground-truth matches.
+
+Negatives
+
+Use four categories:
+
+1. Random negatives
+
+2. Same-name / different-address
+
+3. Same-address / different-name
+
+4. Near-miss / high-similarity negatives
+
+Hard-negative candidates must:
+
+NOT be known GT positives
+NOT use validation labels
+NOT use test information
+
+and mining stays inside the training partition.
+
+The negative ratio is experimental, not fixed beforehand.
+
+10. ML Model
+L0 — Deterministic baseline
+
+Purpose:
+
+sanity check
+pipeline validation
+establish baseline
+
+Not necessarily final.
+
+L1 — Logistic Regression
+
+First real ML model.
+
+Advantages:
+
+fast
+interpretable
+useful baseline
+L2 — LightGBM / GBDT
+
+Nonlinear model capable of learning interactions between:
+
+name
+address
+digits
+rarity
+missingness
+contradictions
+provenance
+
+Do not assume LightGBM wins.
+
+Compare it against Logistic Regression on the same validation setup.
+
+11. Validation
+
+Split by S1 entity, not individual pairs.
+
+Correct:
+
+S1_A
+ ├── positive
+ ├── negative
+ ├── negative
+ └── negative
+
+→ all TRAIN
+
+Another S1:
+
+S1_B
+ ├── positive
+ ├── negative
+ └── negative
+
+→ all VALIDATION
+
+Never split pairs from the same S1 across train/validation.
+
+Also evaluate separately:
+
+zero-match
+singleton
+multi-match
+
+S1 → S2
+S1 → S3
+
+missing-address
+generic-name
+hard negatives
+retrieval failures
+false positives
+false negatives
+
+The architecture explicitly requires S1-grouped validation and cardinality-specific analysis.
+
+12. Iterative Hard-Negative Mining
+
+After the initial model:
+
+Model
+ ↓
+Run over training candidate universe
+ ↓
+Find known negatives with very high predicted scores
+ ↓
+Add to hard-negative pool
+ ↓
+Retrain
+ ↓
+Evaluate on untouched validation
+
+Repeat only if validation Macro F₀.₅ improves.
+
+This is one of the key advanced ML components in our pipeline.
+
+13. Threshold Optimization
+
+The model outputs:
+
+P(match | S1, candidate)
+
+Then search for the threshold that maximizes:
+
+S1-level Macro F₀.₅
+
+First:
+
+global threshold
+
+Then experimentally:
+
+threshold_S2
+threshold_S3
+
+Keep separate thresholds only if they produce reproducible held-out improvement.
+
+14. Final Matching Logic
+
+Absolutely no final top-1/top-5/top-10 restriction.
+
+For each S1:
+
+candidate → ML score
+
+Then:
+
+score >= threshold → MATCH
+score < threshold  → REJECT
+
+Therefore:
+
+0 candidates pass → []
+
+1 candidate passes → [A]
+
+7 candidates pass → [A,B,C,D,E,F,G]
+
+This preserves the actual 0/1/many structure of the challenge.
+
+15. Final Outputs
+
+Generate:
+
+candidate_pairs.tsv
+
+containing the final candidate universe.
+
+And:
+
+matching_results.tsv
+
+containing accepted matches.
+
+Guarantee:
+
+matching_results ⊆ candidate_pairs
+
+Then run the official/local validator.
+
+The final submission package follows the required structure.
+
+Final Tech Stack
+Component	Technology	Status
+Language	Python	FROZEN
+Data processing	pandas	FROZEN
+Numerical computation	NumPy	FROZEN
+Storage/cache	PyArrow + Parquet	FROZEN
+Sparse computation	SciPy / scikit-learn sparse	FROZEN
+String similarity	RapidFuzz	FROZEN
+Exact indexes	Python dictionaries / hash indexes	FROZEN
+Token retrieval	Inverted/token indexes	EXPERIMENT
+Character retrieval	Sparse character n-grams	EXPERIMENT
+ML baseline	scikit-learn Logistic Regression	FROZEN
+Tree model	LightGBM / GBDT	EXPERIMENT
+Tree fallback	HistGradientBoosting	EXPERIMENT
+Testing	pytest	FROZEN
+Configuration	YAML / JSON	FROZEN
+CPU parallelism	joblib	OPTIONAL
+Embeddings	Multilingual embedding model	OPTIONAL
+Vector retrieval	FAISS	OPTIONAL
+Calibration	Isotonic / Platt	OPTIONAL
+Data engine alternative	Polars / DuckDB	OPTIONAL
+Containerization	Docker	OPTIONAL
+
+This matches the technology structure in the uploaded architecture.
+
+What is FROZEN
+
+The team should not redesign these unless evidence forces a change:
+
+✓ S1-grouped validation
+✓ Raw-value retention
+✓ Conservative multi-view normalization
+✓ Compact internal IDs
+✓ Parquet caching
+✓ Multi-channel candidate generation
+✓ Candidate union + deduplication
+✓ Candidate provenance
+✓ Candidate recall measurement
+✓ Sparse retrieval rather than dense all-pairs
+✓ Pairwise feature engineering
+✓ Leakage-safe hard negatives
+✓ Deterministic baseline
+✓ Logistic Regression baseline
+✓ ML model comparison
+✓ Macro-F0.5 threshold optimization
+✓ 0 / 1 / MANY matching
+✓ No final top-K
+✓ Output validation
+✓ candidate_pairs.tsv
+✓ matching_results.tsv
+What remains EXPERIMENTAL
+→ Exact n-gram configuration
+→ Generic-name bucket threshold
+→ Rare-token strategy
+→ Negative ratio
+→ Hard-negative ratio
+→ Near-miss definition
+→ Feature subsets
+→ LightGBM vs Logistic Regression
+→ S2 vs S3 thresholds
+→ Candidate prioritization
+→ Iterative hard-negative mining
+→ Phonetic retrieval
+Optional only if evidence demands it
+→ Multilingual embeddings
+→ FAISS
+→ Transliteration
+→ Calibration
+→ Alternative data engines
+→ Semantic retrieval
+
+Embeddings are deliberately not in the initial core because the current architecture prioritizes lexical/structured retrieval first and only introduces semantic methods if error analysis demonstrates a residual semantic-representation problem.
+
+Team Implementation Order
+
+Give the team this exact order:
+
+1. Submission/evaluation validator
+        ↓
+2. Data validation + profiling
+        ↓
+3. Normalization
+        ↓
+4. int32 IDs + Parquet cache
+        ↓
+5. Exact retrieval indexes
+        ↓
+6. Candidate generation
+        ↓
+7. Candidate recall + volume measurement
+        ↓
+8. Sparse n-gram retrieval
+        ↓
+9. Candidate union + provenance
+        ↓
+10. Pair features
+        ↓
+11. Ground-truth positives
+        ↓
+12. Negative/hard-negative generation
+        ↓
+13. Deterministic baseline
+        ↓
+14. Logistic Regression
+        ↓
+15. LightGBM/GBDT
+        ↓
+16. S1-grouped validation
+        ↓
+17. Threshold optimization
+        ↓
+18. Error analysis
+        ↓
+19. Iterative hard-negative mining
+        ↓
+20. Final test inference
+        ↓
+21. Output validation
+        ↓
+22. Submission ZIP
+
+The key team rule should be:
+
+Do not optimize the ML model before proving the candidate set.

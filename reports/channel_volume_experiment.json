@@ -1,0 +1,30 @@
+{
+  "total_gt_pairs": 14823,
+  "n_sample_s1": 4000,
+  "channels": {
+    "exact_name": {
+      "recall": 0.1969,
+      "rows_per_s1": 8.8
+    },
+    "exact_addr": {
+      "recall": 0.0854,
+      "rows_per_s1": 0.4
+    },
+    "digits": {
+      "recall": 0.5979,
+      "rows_per_s1": 3550.6
+    },
+    "digit_x_token": {
+      "recall": 0.5716,
+      "rows_per_s1": 148.8
+    }
+  },
+  "union": {
+    "recall": 0.68,
+    "through_exact_name": 0.1969,
+    "through_exact_addr": 0.2684,
+    "through_digits": 0.68,
+    "through_digit_x_token": 0.68
+  },
+  "residual_fuzzy_must_cover": 0.32
+}
